@@ -20,6 +20,8 @@ def MH_sample(games, num_players, num_its):
 
     w = np.zeros(num_players)  # skill for each player
 
+    sigma_prop = 0.5  # proposal std dev
+
     for itr in tqdm(range(num_its)):
         for i in range(num_players):
             j, outcome = X[i].T
@@ -28,10 +30,13 @@ def MH_sample(games, num_players, num_its):
             lp1 = norm.logpdf(w[i]) + np.sum(norm.logcdf(outcome*(w[i]-w[j])))
 
             # proposed new skill and log-prob
-            # TODO
-
+            w_prop = w[i] + np.random.normal(scale=sigma_prop)
+            lp2 = norm.logpdf(w_prop) + np.sum(norm.logcdf(outcome*(w_prop - w[j])))
+            acc_prob = np.exp(lp2 - lp1)
+            
             # accept or reject move:
-            # TODO
+            if np.random.rand() < acc_prob:
+                w[i] = w_prop
 
         skill_samples[:, itr] = w
 
